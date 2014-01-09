@@ -1,6 +1,7 @@
 # Paperbin
 
-TODO: Write a gem description
+TODO: 
+To move papertrail's version records to file system as JSON format.
 
 ## Installation
 

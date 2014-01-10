@@ -6,11 +6,11 @@ require 'paperbin/version'
 Gem::Specification.new do |spec|
   spec.name          = "paperbin"
   spec.version       = Paperbin::VERSION
-  spec.authors       = ["Krzysztof Kotlarek"]
+  spec.authors       = ["morhekil","sameera207", "noma4i", "lis2", "halhenke", "gzzengwei"]
   spec.email         = ["kotlarek.krzysztof@gmail.com"]
   spec.description   = %q{TODO: Write a gem description}
   spec.summary       = %q{TODO: Write a gem summary}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/jnsolutions/paperbin"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
@@ -20,4 +20,9 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
+  spec.add_development_dependency "rspec"
+
+  spec.add_runtime_dependency "sidekiq"
+  spec.add_runtime_dependency "papertrail"
+  spec.add_runtime_dependency "activesupport", "~> 3.2"
 end

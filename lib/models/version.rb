@@ -1,4 +1,7 @@
-module  
+require "active_support/concern"
+
+
+module VersionWorkerMixin
   extend ActiveSupport::Concern
 
   included do
@@ -9,15 +12,6 @@ module
     PaperBinWriteWorker.perform_async(self.id)
   end
 
-end 
-
-class PaperBinWriteWorker
-  include Sidekiq::Worker
-
-  def perform(version_id)
-    version = Version.find version_id
-    return true unless version
-    paperbin_writer = PaperbinWriter.new(version.item)
-    paperbin_writer.save_version
-  end
 end
+
+Version.extend(VersionWorkerMixin) if Module.const_defined?("Version")

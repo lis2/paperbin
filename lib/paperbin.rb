@@ -1,6 +1,7 @@
+require 'sidekiq/worker'
 require 'paperbin/version'
-# Dir[File.dirname(__FILE__)].each {|file| require file }
 require 'paperbin_handler'
-module Paperbin
-end
+require 'paperbin_check_worker'
+require 'paperbin_write_worker'
+require 'models/version'
 

@@ -18,7 +18,7 @@ describe PaperbinHandler do
   it "return correct formatted_id" do
     subject.formatted_id.should == "000123456789"
   end
-  
+
   it "split formatted_id into 3 sections" do
     subject.split_id.should == ['0001', '2345', '6789']
   end
@@ -32,13 +32,13 @@ describe PaperbinHandler do
   end
 
   context 'directories' do
-    
+
     it 'generate directory when no exists' do
       Dir.stub(exists?: false)
       FileUtils.should_receive(:mkdir_p)
       subject.create_directory
     end
-    
+
     it 'dont generate directory when exists' do
       Dir.stub(exists?: true)
       FileUtils.should_not_receive(:mkdir_p)
@@ -49,11 +49,13 @@ describe PaperbinHandler do
 
   context 'generate_files' do
 
-    let(:version_1) { stub(id: 1) }
-    let(:version_2) { stub(id: 2) }
+    let(:version_1) { stub(id: 1, to_json: "json") }
+    let(:version_2) { stub(id: 2, to_json: "json") }
+    let(:file) { stub(write: true) }
 
     before do
       subject.stub(versions: [version_1, version_2])
+      File.stub(open: file)
     end
 
     it 'create correct Gzip files' do

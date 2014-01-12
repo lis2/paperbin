@@ -6,7 +6,7 @@ class PaperbinHandler < Struct.new(:id, :type)
   def initilize(version)
     @version = version
   end
-  
+
   def formatted_id
     "%012d" % id
   end
@@ -43,7 +43,7 @@ class PaperbinHandler < Struct.new(:id, :type)
 
   def save_versions
     return true unless item
-    create_directory 
+    create_directory
     generate_files
     PaperBinCheckWorker.perform_async(id, type)
   end
@@ -68,7 +68,7 @@ class PaperbinHandler < Struct.new(:id, :type)
         gz.write data
       end
 
-      File.new(md5_file(version), "w") do |file|
+      File.open(md5_file(version), "w") do |file|
         file.write(Digest::MD5.hexdigest(data))
       end
 
@@ -80,10 +80,10 @@ class PaperbinHandler < Struct.new(:id, :type)
     valid = true
     versions.each do |version|
       # check both file exist or not
-      
+
       record_md5 = File.read(md5_file(version))
       check_md5 = Digest::MD5.hexdigest(Zlib::GzipReader.read(gz_file(version)))
-      
+
       if record_md5 == check_md5
         # remove records from db expcet the lastest one
         # rename file extension
@@ -92,7 +92,7 @@ class PaperbinHandler < Struct.new(:id, :type)
         # remove both files
       end
     end
-    
+
     # lodge worker unless valid
 
   end

@@ -14,4 +14,3 @@ module VersionWorkerMixin
 
 end
 
-Version.extend(VersionWorkerMixin) if Module.const_defined?("Version")

@@ -34,7 +34,7 @@ class PaperbinHandler < Struct.new(:id, :type)
     dirs << item.send(options[:base_scope])
     dirs << type
     dirs += split_id
-    File.join(dirs)
+    File.join(dirs.map(&:to_s))
   end
 
   def versions
@@ -66,11 +66,12 @@ class PaperbinHandler < Struct.new(:id, :type)
 
   def md5_valid?(version)
     record_md5 = File.read(md5_file(version))
-    check_md5 = Digest::MD5.hexdigest(Zlib::GzipReader.open(gz_file(version) {|gz| gz.read }))
+    data = Zlib::GzipReader.open(gz_file(version)) {|gz| gz.read }
+    check_md5 = Digest::MD5.hexdigest(data)
     record_md5 == check_md5
   end
 
-  def process_valid_record(version, last_item)
+  def process_valid_records(version, last_item)
     # remove records from db expcet the lastest one
     version.delete unless version == last_item
     # rename file extension

@@ -6,11 +6,8 @@ describe Paperbin::Handler do
 
   subject { Paperbin::Handler.new("123456789", "client") }
   before(:each) do
-    Rails.stub_chain(:application, :config, :paperbin).and_return(
-      {
-        path: '/path',
-        base_scope: 'organisation_id'
-      })
+    Paperbin::Config.default_options[:path] = '/path'
+    Paperbin::Config.default_options[:base_scope] = 'organisation_id'
     subject.stub(item: item)
   end
 

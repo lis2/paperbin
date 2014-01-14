@@ -15,7 +15,7 @@ class Paperbin::Handler < Struct.new(:id, :type)
   end
 
   def options
-    Rails.application.config.paperbin || {}
+    Paperbin::Config.default_options
   end
 
   def item
@@ -73,7 +73,7 @@ class Paperbin::Handler < Struct.new(:id, :type)
     # rename file extension
     File.rename(gz_file(version), gz_file(version, true))
 
-    Paperbin.send(options[:callback], gz_file(version, true)) if options[:callback]
+    options[:callback].call(gz_file(version, true)) if options[:callback]
   end
 
   def generate_files

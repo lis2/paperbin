@@ -4,7 +4,7 @@ require 'sidekiq/worker'
 module Paperbin
   class Railtie < Rails::Railtie
     config.after_initialize do
-      Version.send(:include, VersionWorkerMixin)
+      Version.send(:include, Paperbin::VersionMixin)
     end
   end
 end
@@ -14,3 +14,4 @@ require 'paperbin/handler'
 require 'paperbin/check_worker'
 require 'paperbin/write_worker'
 require 'paperbin/version_mixin'
+require 'paperbin/config'

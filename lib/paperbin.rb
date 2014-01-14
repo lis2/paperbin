@@ -1,10 +1,5 @@
 require 'rails'
 require 'sidekiq/worker'
-require 'paperbin/version'
-require 'paperbin_handler'
-require 'paperbin_check_worker'
-require 'paperbin_write_worker'
-require 'models/version'
 
 module Paperbin
   class Railtie < Rails::Railtie
@@ -14,5 +9,8 @@ module Paperbin
   end
 end
 
-
-
+require 'paperbin/version'
+require 'paperbin/handler'
+require 'paperbin/check_worker'
+require 'paperbin/write_worker'
+require 'paperbin/version_mixin'

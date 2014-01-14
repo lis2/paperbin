@@ -1,7 +1,6 @@
 require "active_support/concern"
 
-
-module VersionWorkerMixin
+module Paperbin::VersionMixin
   extend ActiveSupport::Concern
 
   included do
@@ -9,7 +8,7 @@ module VersionWorkerMixin
   end
 
   def perform_worker
-    PaperBinWriteWorker.perform_async(self.item_id, self.item_type)
+    Paperbin::WriteWorker.perform_async(item_id, item_type)
   end
 
 end

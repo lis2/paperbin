@@ -1,10 +1,10 @@
 require "spec_helper"
 
-describe PaperbinHandler do
+describe Paperbin::Handler do
 
   let(:item) { double(organisation_id: "org1") }
 
-  subject { PaperbinHandler.new("123456789", "client") }
+  subject { Paperbin::Handler.new("123456789", "client") }
   before(:each) do
     Rails.stub_chain(:application, :config, :paperbin).and_return(
       {
@@ -64,10 +64,4 @@ describe PaperbinHandler do
 
   end
 
-  context 'checker' do
-    context '' do
-    end
-  end
-
 end
-

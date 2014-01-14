@@ -1,18 +1,14 @@
-class PaperbinHandler < Struct.new(:id, :type)
+class Paperbin::Handler < Struct.new(:id, :type)
 
   require 'zlib'
   require 'tempfile'
-
-  def initilize(version)
-    @version = version
-  end
 
   def formatted_id
     "%012d" % id
   end
 
   def split_id
-    formatted_id.scan /.{4}/
+    formatted_id.scan(/.{4}/)
   end
 
   def current_path
@@ -45,7 +41,7 @@ class PaperbinHandler < Struct.new(:id, :type)
     return true unless item
     create_directory
     generate_files
-    PaperBinCheckWorker.perform_async(id, type)
+    Paperbin::CheckWorker.perform_async(id, type)
   end
 
   def create_directory
@@ -114,7 +110,7 @@ class PaperbinHandler < Struct.new(:id, :type)
     end
 
     # lodge worker unless valid
-    PaperBinWriteWorker.perform_async(version.item_id, version.item_type) unless valid
+    Paperbin::WriteWorker.perform_async(version.item_id, version.item_type) unless valid
 
   end
 end

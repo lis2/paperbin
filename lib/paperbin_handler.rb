@@ -76,6 +76,8 @@ class PaperbinHandler < Struct.new(:id, :type)
     version.delete unless version == last_item
     # rename file extension
     File.rename(gz_file(version), gz_file(version, true))
+
+    Paperbin.send(options[:callback], gz_file(version, true)) if options[:callback]
   end
 
   def generate_files

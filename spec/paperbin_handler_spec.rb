@@ -1,9 +1,8 @@
 require "spec_helper"
 
 describe PaperbinHandler do
-  class Rails ; ; end
 
-  let(:item) { stub(organisation_id: "org1") }
+  let(:item) { double(organisation_id: "org1") }
 
   subject { PaperbinHandler.new("123456789", "client") }
   before(:each) do
@@ -49,9 +48,9 @@ describe PaperbinHandler do
 
   context 'generate_files' do
 
-    let(:version_1) { stub(id: 1, to_json: "json") }
-    let(:version_2) { stub(id: 2, to_json: "json") }
-    let(:file) { stub(write: true) }
+    let(:version_1) { double(id: 1, to_json: "json") }
+    let(:version_2) { double(id: 2, to_json: "json") }
+    let(:file) { double(write: true) }
 
     before do
       subject.stub(versions: [version_1, version_2])

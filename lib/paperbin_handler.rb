@@ -56,16 +56,34 @@ class PaperbinHandler < Struct.new(:id, :type)
     File.join(directory_path, "#{version.id}.md5")
   end
 
-  def gz_file(version)
-    File.join(directory_path, "#{version.id}.gz")
+  def gz_file(version, checked = false)
+    File.join(directory_path, "#{version.id}.gz#{checked ? '' : '.unchecked'}")
+  end
+
+  def files_exist?(*args)
+    Array(args).map{|file| File.exist?(file)}.all?
+  end
+
+  def md5_valid?(version)
+    record_md5 = File.read(md5_file(version))
+    check_md5 = Digest::MD5.hexdigest(Zlib::GzipReader.open(gz_file(version) {|gz| gz.read }))
+    record_md5 == check_md5
+  end
+
+  def process_valid_record(version, last_item)
+    # remove records from db expcet the lastest one
+    version.delete unless version == last_item
+    # rename file extension
+    File.rename(gz_file(version), gz_file(version, true))
   end
 
   def generate_files
     versions.each do |version|
       data = version.to_json
-
-      Zlib::GzipWriter.open(gz_file(version)) do |gz|
-        gz.write data
+      unless files_exist?(gz_file(version))
+        Zlib::GzipWriter.open(gz_file(version)) do |gz|
+          gz.write data
+        end
       end
 
       File.open(md5_file(version), "w") do |file|
@@ -75,25 +93,25 @@ class PaperbinHandler < Struct.new(:id, :type)
     end
   end
 
-
   def check_versions
     valid = true
-    versions.each do |version|
+    versions.each_with_index do |version, index|
       # check both file exist or not
+      next unless files_exist?(md5_file(version), gz_file(version))
 
-      record_md5 = File.read(md5_file(version))
-      check_md5 = Digest::MD5.hexdigest(Zlib::GzipReader.read(gz_file(version)))
-
-      if record_md5 == check_md5
-        # remove records from db expcet the lastest one
-        # rename file extension
+      if md5_valid?(version)
+        process_valid_records(version, versions.last)
       else
         valid = false
         # remove both files
+        [gz_file(version), md5_file(version)].each do |f|
+          File.delete(f)
+        end
       end
     end
 
     # lodge worker unless valid
+    PaperBinWriteWorker.perform_async(version.item_id, version.item_type) unless valid
 
   end
 end

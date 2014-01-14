@@ -9,7 +9,7 @@ module VersionWorkerMixin
   end
 
   def perform_worker
-    PaperBinWriteWorker.perform_async(self.id)
+    PaperBinWriteWorker.perform_async(self.item_id, self.item_type)
   end
 
 end

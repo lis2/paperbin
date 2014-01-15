@@ -69,11 +69,13 @@ class Paperbin::Handler < Struct.new(:id, :type)
 
   def process_valid_records(version, last_item)
     # remove records from db expcet the lastest one
-    version.delete unless version == last_item
+    unless version == last_item
+      version.delete
+      options[:callback].call(gz_file(version, true)) if options[:callback]
+    end
     # rename file extension
     File.rename(gz_file(version), gz_file(version, true))
 
-    options[:callback].call(gz_file(version, true)) if options[:callback]
   end
 
   def generate_files

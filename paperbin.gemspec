@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Paperbin::VERSION
   spec.authors       = ["morhekil","sameera207", "noma4i", "lis2", "halhenke", "gzzengwei"]
   spec.email         = ["kotlarek.krzysztof@gmail.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.description   = %q{Paperbin removes paper_trail versions and move them to filesystem}
+  spec.summary       = %q{,Paperbin removes paper_trail versions and move them to filesyste}
   spec.homepage      = "https://github.com/jnsolutions/paperbin"
   spec.license       = "MIT"
 
@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec"
 
   spec.add_runtime_dependency "sidekiq"
-  spec.add_runtime_dependency "papertrail"
+  spec.add_runtime_dependency "paper_trail"
   spec.add_runtime_dependency "railties", "~> 3.2"
   spec.add_runtime_dependency "activesupport", "~> 3.2"
 end

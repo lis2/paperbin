@@ -69,13 +69,10 @@ class Paperbin::Handler < Struct.new(:id, :type)
 
   def process_valid_records(version, last_item)
     # remove records from db expcet the lastest one
-    unless version == last_item
-      version.delete
-      options[:callback].call(gz_file(version, true)) if options[:callback]
-    end
+    version.delete unless version == last_item
     # rename file extension
     File.rename(gz_file(version), gz_file(version, true))
-
+    options[:callback].call(gz_file(version, true)) if options[:callback]
   end
 
   def generate_files
@@ -95,7 +92,6 @@ class Paperbin::Handler < Struct.new(:id, :type)
   end
 
   def check_versions
-    valid = true
     versions.each_with_index do |version, index|
       # check both file exist or not
       next unless files_exist?(md5_file(version), gz_file(version))
@@ -103,17 +99,17 @@ class Paperbin::Handler < Struct.new(:id, :type)
       if md5_valid?(version)
         process_valid_records(version, versions.last)
       else
-        valid = false
         # remove both files
         [gz_file(version), md5_file(version)].each do |f|
           File.delete(f)
         end
+        raise Errno::ENOENT
       end
     end
 
+  rescue Errno::ENOENT
     # lodge worker unless valid
-    Paperbin::WriteWorker.perform_async(version.item_id, version.item_type) unless valid
-
+    Paperbin::WriteWorker.perform_async(version.item_id, version.item_type)
   end
 end
 

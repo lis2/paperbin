@@ -93,23 +93,22 @@ class Paperbin::Handler < Struct.new(:id, :type)
 
   def check_versions
     versions.each_with_index do |version, index|
-      # check both file exist or not
-      next unless files_exist?(md5_file(version), gz_file(version))
+        # check both file exist or not
+        next unless files_exist?(md5_file(version), gz_file(version))
 
-      if md5_valid?(version)
-        process_valid_records(version, versions.last)
-      else
-        # remove both files
-        [gz_file(version), md5_file(version)].each do |f|
-          File.delete(f)
+        if md5_valid?(version)
+          process_valid_records(version, versions.last)
+        else
+          # remove both files
+          [gz_file(version), md5_file(version)].each do |f|
+            File.delete(f)
+          end
+          raise Errno::ENOENT
         end
-        raise Errno::ENOENT
-      end
     end
-
   rescue Errno::ENOENT
     # lodge worker unless valid
-    Paperbin::WriteWorker.perform_async(version.item_id, version.item_type)
+    Paperbin::WriteWorker.perform_async(id, type)
   end
 end
 

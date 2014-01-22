@@ -87,7 +87,7 @@ class Paperbin::Handler < Struct.new(:id, :type)
     unless files_exist?(path)
       Zlib::GzipWriter.open(path) { |gz| gz.write string_data(version) }
 
-      timestamp = version.created_at
+      timestamp = version.created_at.to_time
       File.utime timestamp, timestamp, path
     end
   end

@@ -46,8 +46,9 @@ describe Paperbin::Handler do
   end
 
   context 'generate_files' do
-    let(:version_1) { double(id: 1, to_json: "json") }
-    let(:version_2) { double(id: 2, to_json: "json") }
+    let(:timestamp) { Time.now }
+    let(:version_1) { double(id: 1, to_json: "json", created_at: timestamp) }
+    let(:version_2) { double(id: 2, to_json: "json", created_at: timestamp) }
     let(:file) { double(write: true) }
 
     before do
@@ -57,6 +58,9 @@ describe Paperbin::Handler do
 
     it 'create correct Gzip files' do
       Zlib::GzipWriter.should_receive(:open).twice
+      expect(File).to receive(:utime).twice.with(
+        timestamp, timestamp, an_instance_of(String)
+      )
       handler.generate_files
     end
 

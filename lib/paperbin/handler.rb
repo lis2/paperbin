@@ -77,18 +77,30 @@ class Paperbin::Handler < Struct.new(:id, :type)
 
   def generate_files
     versions.each do |version|
-      data = version.to_json
-      unless files_exist?(gz_file(version))
-        Zlib::GzipWriter.open(gz_file(version)) do |gz|
-          gz.write data
-        end
-      end
-
-      File.open(md5_file(version), "w") do |file|
-        file.write(Digest::MD5.hexdigest(data))
-      end
-
+      write_gz_file version
+      write_md5_file version
     end
+  end
+
+  def write_gz_file(version)
+    path = gz_file version
+    unless files_exist?(path)
+      Zlib::GzipWriter.open(path) { |gz| gz.write string_data(version) }
+
+      timestamp = version.created_at
+      File.utime timestamp, timestamp, path
+    end
+  end
+
+  def write_md5_file(version)
+    File.open(md5_file(version), "w") do |file|
+      md5 = Digest::MD5.hexdigest(string_data(version))
+      file.write md5
+    end
+  end
+
+  def string_data(version)
+    version.to_json
   end
 
   def check_versions

@@ -17,9 +17,10 @@ Or install it yourself as:
 
     $ gem install paperbin
 
-## Usage
+### Queues
 
-TODO: Write usage instructions here
+check worker - ENV['PAPERBIN_CHECK_QUEUE'] || 'default'
+write worker - ENV['PAPERBIN_WRITE_QUEUE'] || 'default'
 
 ## Contributing
 

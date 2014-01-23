@@ -9,6 +9,8 @@ module Paperbin::VersionMixin
 
   def perform_worker
     Paperbin::WriteWorker.perform_async(item_id, item_type)
+  rescue Exception => e
+    Airbrake.notify_or_ignore(e) if Paperbin::Handler.new.options[:airbrake_enabled]
   end
 
 end

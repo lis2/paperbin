@@ -1,5 +1,7 @@
 require 'rails'
-require 'sidekiq/worker'
+require 'sidekiq'
+require 'zippy'
+require 'fileutils'
 
 module Paperbin
   class Railtie < Rails::Railtie

@@ -26,4 +26,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "paper_trail"
   spec.add_runtime_dependency "railties", "~> 3.2"
   spec.add_runtime_dependency "activesupport", "~> 3.2"
+  spec.add_runtime_dependency "zippy"
+  spec.add_runtime_dependency "zip"
 end

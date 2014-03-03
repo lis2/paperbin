@@ -1,7 +1,6 @@
-require "spec_helper"
+require "./spec_helper"
 
 describe Paperbin::Handler do
-
   let(:item) { double(organisation_id: "org1") }
   let(:target_id) { '123456789' }
   let(:target_type) { 'Client' }
@@ -17,19 +16,26 @@ describe Paperbin::Handler do
     handler.formatted_id.should == "000123456789"
   end
 
-  it "split formatted_id into 3 sections" do
-    handler.split_id.should == ['0001', '2345', '6789']
+  it "split formatted_id into 2 sections" do
+    handler.dir_split_id.should == ['0001', '2345']
+  end
+
+  it "give proper file name" do
+    handler.archive_split_id.should == '6789'
   end
 
   it 'return options' do
     handler.options.should == {path: '/path', base_scope: 'organisation_id'}
   end
 
-  it "return directory" do
-    handler.directory_path.should == "/path/org1/Client/0001/2345/6789"
-  end
-
   context 'directories' do
+    it "return directory" do
+      handler.directory_path.should == "/path/org1/Client/0001/2345"
+    end
+
+    it "return old directory" do
+      handler.old_directory_path.should == "/path/org1/Client/0001/2345/6789"
+    end
 
     it 'generate directory when no exists' do
       Dir.stub(exists?: false)
@@ -42,7 +48,6 @@ describe Paperbin::Handler do
       FileUtils.should_not_receive(:mkdir_p)
       handler.create_directory
     end
-
   end
 
   context 'generate_files' do
@@ -57,7 +62,7 @@ describe Paperbin::Handler do
     end
 
     it 'create correct Gzip files' do
-      Zlib::GzipWriter.should_receive(:open).twice
+      File.should_receive(:open).exactly(4).times
       expect(File).to receive(:utime).twice.with(
         timestamp, timestamp, an_instance_of(String)
       )
@@ -76,6 +81,7 @@ describe Paperbin::Handler do
       handler.stub files_exist?: true
       File.stub rename: true, delete: true
       Paperbin::WriteWorker.stub perform_async: true
+      Zippy.stub :open
     end
 
     subject(:check_versions) { handler.check_versions }
@@ -109,7 +115,48 @@ describe Paperbin::Handler do
         check_versions
       end
     end
-
   end
 
+  context 'old folders' do
+    let(:timestamp) { Time.now }
+    let(:version_1) { double(id: 1, to_json: "json", created_at: timestamp) }
+    let(:version_2) { double(id: 2, to_json: "json", created_at: timestamp) }
+    let(:file) { double(write: true) }
+
+    before(:each) do
+      handler.stub(versions: [version_1, version_2])
+      handler.stub(:old_directory_path).and_return("./tmp1")
+      handler.stub(:directory_path).and_return("./tmp2")
+      FileUtils.mkdir_p(handler.old_directory_path)
+      FileUtils.mkdir_p(handler.directory_path)
+      Zlib::GzipWriter.open(File.join(handler.old_directory_path, "12.gz")) { |gz| gz.write "Very important json" }
+      handler.create_directory
+      handler.create_archive_file
+    end
+
+    after(:each) do
+      FileUtils.remove_dir(handler.old_directory_path) if File.directory?(handler.old_directory_path)
+      FileUtils.remove_dir(handler.directory_path) if File.directory?(handler.directory_path)
+    end
+
+    it 'should create archive file' do
+      File.exists?(handler.archive_path).should be_true
+    end
+
+    it 'archive should not be empty' do
+      Zippy.list(handler.archive_path).detect { |f| f == "12.json" }.should be_true
+    end
+
+    it "json file should be correct" do
+      data = ""
+      Zippy.open(handler.archive_path) do |z|
+        data = z["12.json"]
+      end
+      data.should == "Very important json"
+    end
+
+    it "should remove old directory" do
+      File.directory?(handler.old_directory_path).should be_false
+    end
+  end
 end
